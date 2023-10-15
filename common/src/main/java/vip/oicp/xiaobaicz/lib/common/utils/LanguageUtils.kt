@@ -97,11 +97,9 @@ object LanguageUtils {
 
     @JvmStatic
     private fun setDefault(locale: Locale) {
-        try {
+        catchOnly {
             this.locale = locale.clone() as Locale
             Locale.setDefault(locale.clone() as Locale)
-        } catch (t: Throwable) {
-            t.printStackTrace()
         }
     }
 
