@@ -5,6 +5,11 @@ import android.content.Context
 import vip.oicp.xiaobaicz.lib.common.utils.LanguageUtils
 import java.util.ServiceLoader
 
+/**
+ * Application基类
+ * 1. 集成语言工具
+ * 2. 集成ApplicationLifecycleSpi
+ */
 abstract class Application : Application() {
 
     private val applicationLifecycleSpiList: List<ApplicationLifecycleSpi> by lazy {

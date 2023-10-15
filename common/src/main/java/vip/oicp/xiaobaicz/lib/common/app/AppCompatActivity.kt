@@ -4,6 +4,10 @@ import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import vip.oicp.xiaobaicz.lib.common.utils.LanguageUtils
 
+/**
+ * Activity基类
+ * 1. 集成语言工具
+ */
 abstract class AppCompatActivity : AppCompatActivity() {
 
     override fun attachBaseContext(newBase: Context?) {

@@ -5,21 +5,40 @@ import android.os.SystemClock
 import android.view.Choreographer
 import android.view.Choreographer.FrameCallback
 
+/**
+ * 帧监听工具
+ */
 object FrameUtils {
 
+    /**
+     * 帧率监听
+     */
     fun interface FrameRateListener {
+        /**
+         * 帧率回调
+         */
         fun frameRate(rate: Int)
     }
 
+    // 垂直同步信号工具
     @JvmStatic
     private val choreographer: Choreographer by lazy { Choreographer.getInstance() }
 
+    /**
+     * 帧率监听
+     */
     @JvmStatic
     var frameRateListener: FrameRateListener? = null
 
+    /**
+     * 帧监听
+     */
     @JvmStatic
     var frameCallback: FrameCallback? = null
 
+    /**
+     * 启动/停止监听
+     */
     @JvmStatic
     var running: Boolean = false
         set(value) {

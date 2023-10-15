@@ -10,6 +10,7 @@ import androidx.core.os.LocaleListCompat
 import java.util.Locale
 
 /**
+ * 语言环境工具
  * @see android.content.ContextWrapper.attachBaseContext
  * @see android.app.Application.attachBaseContext
  * @see android.app.Activity.attachBaseContext
@@ -19,12 +20,16 @@ object LanguageUtils {
 
     private const val KEY_LOCALE = "locale"
 
+    /**
+     * 当前语言环境
+     */
     @JvmStatic
     var locale: Locale = Locale.getDefault()
         private set
 
     /**
-     * @see android.app.Activity.onRestart
+     * 在[Activity.onRestart]调用，语言环境变更时，重启[Activity]
+     * @see Activity.onRestart
      */
     @JvmStatic
     fun onRestart(activity: Activity) {
@@ -35,7 +40,8 @@ object LanguageUtils {
 
 
     /**
-     * @see android.app.Activity.attachBaseContext
+     * 在[Activity.attachBaseContext]调用，语言环境变更时，重启[Activity]
+     * @see Activity.attachBaseContext
      */
     @JvmStatic
     fun handleBaseContext(base: Context?): Context? {
@@ -46,6 +52,7 @@ object LanguageUtils {
     }
 
     /**
+     * 在[android.app.Application.attachBaseContext]调用，语言环境变更时，重启[android.app.Application]
      * @see android.app.Application.attachBaseContext
      */
     @JvmStatic
@@ -98,6 +105,9 @@ object LanguageUtils {
         }
     }
 
+    /**
+     * 设置语言环境，马上生效
+     */
     @JvmStatic
     fun setLocale(activity: Activity, locale: Locale) {
         if (this.locale == locale) return
