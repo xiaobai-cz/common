@@ -2,6 +2,7 @@
 plugins {
     alias(libs.plugins.com.android.library)
     alias(libs.plugins.org.jetbrains.kotlin.android)
+    id("kotlin-kapt")
     `maven-publish`
 }
 
@@ -33,6 +34,8 @@ android {
 
 dependencies {
     implementation(libs.bundles.common)
+    implementation(libs.auto.service.annotations)
+    kapt(libs.auto.service)
     testImplementation(libs.bundles.test)
     androidTestImplementation(libs.bundles.test.android)
 }
