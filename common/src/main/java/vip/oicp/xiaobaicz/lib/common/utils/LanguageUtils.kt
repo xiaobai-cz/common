@@ -58,13 +58,7 @@ object LanguageUtils {
     @JvmStatic
     fun handleBaseApplicationContext(base: Context?): Context? {
         loadLocale(base)
-        handleSystemResource()
         return handleBaseContext(base)
-    }
-
-    @JvmStatic
-    private fun handleSystemResource() {
-        onChangeLocale(Resources.getSystem())
     }
 
     @JvmStatic
@@ -111,7 +105,6 @@ object LanguageUtils {
         if (this.locale == locale) return
         setDefault(locale)
         saveLocale(activity)
-        handleSystemResource()
         handleApplicationResource(activity)
         activity.recreate()
     }
