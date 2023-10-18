@@ -1,9 +1,9 @@
 package vip.oicp.xiaobaicz.lib.common.provider
 
+import android.app.Application
 import android.content.Context
 import com.google.auto.service.AutoService
-import vip.oicp.xiaobaicz.lib.common.app.Application
-import vip.oicp.xiaobaicz.lib.common.app.ApplicationLifecycleSpi
+import vip.oicp.xiaobaicz.lib.common.spi.ApplicationLifecycleSpi
 
 /**
  * Android Context提供者
