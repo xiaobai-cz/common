@@ -1,3 +1,4 @@
+@file:Suppress("unused")
 package vip.oicp.xiaobaicz.lib.common.provider
 
 import android.app.Application
@@ -8,28 +9,22 @@ import vip.oicp.xiaobaicz.lib.common.spi.ApplicationLifecycleSpi
 /**
  * Android Context提供者
  */
-interface ContextProvider {
+@AutoService(ApplicationLifecycleSpi::class)
+class ContextProvider : ApplicationLifecycleSpi {
 
-    /**
-     * Application onCreate 后有效
-     */
-    val applicationContext: Context
-
-    companion object : ContextProvider {
+    companion object {
 
         // Application onCreate 进行赋值
+        @JvmStatic
         private var applicationContextOrNull: Context? = null
 
-        override val applicationContext: Context
-            get() = applicationContextOrNull ?: throw NullPointerException("application context is null")
+        @JvmStatic
+        val applicationContext: Context get() = applicationContextOrNull ?: throw NullPointerException("application context is null")
 
     }
 
-    @AutoService(ApplicationLifecycleSpi::class)
-    class ContextProviderRegister : ApplicationLifecycleSpi {
-        override fun onCreate(application: Application) {
-            applicationContextOrNull = application
-        }
+    override fun onCreate(application: Application) {
+        applicationContextOrNull = application
     }
 
 }
