@@ -19,3 +19,12 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-dontshrink
+
+-keep public class vip.oicp.xiaobaicz.lib.common.** {
+    public *;
+}
+
+-keep interface vip.oicp.xiaobaicz.lib.common.spi.ApplicationLifecycleSpi { *; }
+-keep class * implements vip.oicp.xiaobaicz.lib.common.spi.ApplicationLifecycleSpi { *; }
