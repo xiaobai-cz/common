@@ -9,6 +9,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         println(ContextProvider.applicationContext)
+        println(ContextProvider.topActivityContext)
     }
 
 }
