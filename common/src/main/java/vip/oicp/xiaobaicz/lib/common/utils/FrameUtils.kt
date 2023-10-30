@@ -42,7 +42,7 @@ object FrameUtils {
     @JvmStatic
     var running: Boolean = false
         set(value) {
-            if (field && value) return
+            if (field == value) return
             field = value
             if (field) {
                 choreographer.postFrameCallback(object : FrameCallback {
