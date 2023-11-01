@@ -4,7 +4,6 @@ package vip.oicp.xiaobaicz.lib.common.provider
 import android.app.Activity
 import android.app.Application
 import android.content.Context
-import android.os.Bundle
 import com.google.auto.service.AutoService
 import vip.oicp.xiaobaicz.lib.common.app.Application.ActivityLifecycleCallbacksDefault
 import vip.oicp.xiaobaicz.lib.common.spi.ApplicationLifecycleSpi
@@ -26,9 +25,13 @@ class ContextProvider : ApplicationLifecycleSpi, ActivityLifecycleCallbacksDefau
         @JvmStatic
         val applicationContext: Context get() = applicationContextOrNull ?: throw NullPointerException("application context is null")
 
+        // 由 onActivityPreStarted 进行赋值
         @JvmStatic
         private var topActivityContextRef: Reference<Context>? = null
 
+        /**
+         * [Activity.onStart]开始生效
+         */
         @JvmStatic
         val topActivityContext: Context? get() = topActivityContextRef?.get()
 
@@ -39,7 +42,7 @@ class ContextProvider : ApplicationLifecycleSpi, ActivityLifecycleCallbacksDefau
         application.registerActivityLifecycleCallbacks(this)
     }
 
-    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+    override fun onActivityPreStarted(activity: Activity) {
         topActivityContextRef = WeakReference(activity)
     }
 
