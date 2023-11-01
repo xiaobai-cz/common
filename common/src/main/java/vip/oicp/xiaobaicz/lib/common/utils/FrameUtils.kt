@@ -8,7 +8,16 @@ import android.view.Choreographer.FrameCallback
 /**
  * 帧监听工具
  */
-object FrameUtils {
+class FrameUtils private constructor() {
+
+    companion object {
+        // 垂直同步信号工具
+        @JvmStatic
+        private val choreographer: Choreographer by lazy { Choreographer.getInstance() }
+
+        @JvmStatic
+        fun create(): FrameUtils = FrameUtils()
+    }
 
     /**
      * 帧率监听
@@ -20,26 +29,24 @@ object FrameUtils {
         fun frameRate(rate: Int)
     }
 
-    // 垂直同步信号工具
-    @JvmStatic
-    private val choreographer: Choreographer by lazy { Choreographer.getInstance() }
+    /**
+     * 帧监听
+     */
+    fun interface FrameListener : FrameCallback
 
     /**
      * 帧率监听
      */
-    @JvmStatic
     var frameRateListener: FrameRateListener? = null
 
     /**
      * 帧监听
      */
-    @JvmStatic
-    var frameCallback: FrameCallback? = null
+    var frameListener: FrameListener? = null
 
     /**
      * 启动/停止监听
      */
-    @JvmStatic
     var running: Boolean = false
         set(value) {
             if (field == value) return
@@ -49,16 +56,17 @@ object FrameUtils {
                     var time: Long = SystemClock.elapsedRealtime()
                     var rate: Int = 1
                     override fun doFrame(frameTimeNanos: Long) {
-                        frameCallback?.doFrame(frameTimeNanos)
+                        frameListener?.doFrame(frameTimeNanos)
                         if (SystemClock.elapsedRealtime() - time >= 1000L) {
                             time = SystemClock.elapsedRealtime()
                             frameRateListener?.frameRate(rate)
                             rate = 0
                         }
                         rate++
-                        if (field) {
+                        if (field)
                             choreographer.postFrameCallback(this)
-                        }
+                        else
+                            choreographer.removeFrameCallback(this)
                     }
                 })
             }
