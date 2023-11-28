@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 
-abstract class BindingAdapter<T : ViewBinding> : RecyclerView.Adapter<BindingViewHolder<T>>() {
+abstract class BindingAdapter<T : ViewBinding> : RecyclerView.Adapter<BindingViewHolder<T>>(), OnBindingCreate<T> {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BindingViewHolder<T> {
         val bind = bindingFactory(viewType)(LayoutInflater.from(parent.context), parent, false)
         onBindingCreate(bind)
@@ -22,7 +22,7 @@ abstract class BindingAdapter<T : ViewBinding> : RecyclerView.Adapter<BindingVie
 
     abstract fun bindingFactory(viewType: Int): BindingFactory<T>
 
-    open fun onBindingCreate(bind: T) {}
+    override fun onBindingCreate(bind: T) {}
 
     abstract fun onBindBinding(bind: T, position: Int)
 

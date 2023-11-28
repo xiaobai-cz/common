@@ -15,8 +15,14 @@ class SimpleAdapter<T : ViewBinding>(
     private val factory: BindingFactory<T>,
     private val onBindBinding: (T, Any, Int) -> Unit,
 ) : BindingListAdapter<T>() {
+    var onBindingCreate: OnBindingCreate<T>? = null
+
     override fun bindingFactory(viewType: Int): BindingFactory<T> {
         return factory
+    }
+
+    override fun onBindingCreate(bind: T) {
+        onBindingCreate?.onBindingCreate(bind)
     }
 
     override fun onBindBinding(bind: T, position: Int) {

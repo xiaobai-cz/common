@@ -13,8 +13,14 @@ class Combine(
 )
 
 class CombineAdapter(private val combine: Combine) : BindingListAdapter<ViewBinding>() {
+    var onBindingCreate: OnBindingCreate<ViewBinding>? = null
+
     override fun bindingFactory(viewType: Int): BindingFactory<ViewBinding> {
         return combine.factoryMap[viewType] ?: throw NullPointerException("not find factory by viewType: $viewType")
+    }
+
+    override fun onBindingCreate(bind: ViewBinding) {
+        onBindingCreate?.onBindingCreate(bind)
     }
 
     override fun onBindBinding(bind: ViewBinding, position: Int) {
