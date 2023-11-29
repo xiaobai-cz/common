@@ -9,7 +9,7 @@ interface ViewType {
 
 class Combine(
     val factoryMap: HashMap<Int, BindingFactory<ViewBinding>> = HashMap(),
-    val bindingMap: HashMap<Int, (ViewBinding, Any, Int) -> Unit> = HashMap(),
+    val bindingMap: HashMap<Int, OnBindBinding<ViewBinding>> = HashMap(),
 )
 
 class CombineAdapter(private val combine: Combine) : BindingListAdapter<ViewBinding>() {
@@ -36,10 +36,10 @@ class CombineAdapter(private val combine: Combine) : BindingListAdapter<ViewBind
     }
 }
 
-fun <T : ViewBinding> Combine.bind(viewType: Int, factory: BindingFactory<T>, binding: (T, Any, Int) -> Unit) {
+fun <T : ViewBinding> Combine.bind(viewType: Int, factory: BindingFactory<T>, binding: OnBindBinding<T>) {
     factoryMap[viewType] = factory
     @Suppress("UNCHECKED_CAST")
-    bindingMap[viewType] = binding as (ViewBinding, Any, Int) -> Unit
+    bindingMap[viewType] = binding as OnBindBinding<ViewBinding>
 }
 
 fun RecyclerView.combineAdapter(config: Combine.() -> Unit): CombineAdapter {

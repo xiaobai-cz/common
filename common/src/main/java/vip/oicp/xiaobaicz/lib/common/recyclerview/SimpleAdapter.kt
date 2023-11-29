@@ -5,7 +5,7 @@ package vip.oicp.xiaobaicz.lib.common.recyclerview
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 
-fun <T : ViewBinding> RecyclerView.simpleAdapter(factory: BindingFactory<T>, onBindBinding: (T, Any, Int) -> Unit): SimpleAdapter<T> {
+fun <T : ViewBinding> RecyclerView.simpleAdapter(factory: BindingFactory<T>, onBindBinding: OnBindBinding<T>): SimpleAdapter<T> {
     val adapter = SimpleAdapter(factory, onBindBinding)
     this.adapter = adapter
     return adapter
@@ -13,7 +13,7 @@ fun <T : ViewBinding> RecyclerView.simpleAdapter(factory: BindingFactory<T>, onB
 
 class SimpleAdapter<T : ViewBinding>(
     private val factory: BindingFactory<T>,
-    private val onBindBinding: (T, Any, Int) -> Unit,
+    private val onBindBinding: OnBindBinding<T>,
 ) : BindingListAdapter<T>() {
     var onBindingCreate: OnBindingCreate<T>? = null
 
