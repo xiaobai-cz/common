@@ -4,26 +4,22 @@ class Result<T>(
     val value: T,
     private val t: Throwable? = null,
 ) {
-    fun doOnError(func: (Throwable)->Unit) {
-        func(t ?: return)
+    fun doOnError(func: (Throwable)->Unit): Result<T> {
+        func(t ?: return this)
+        return this
     }
 }
 
 /**
- * 仅捕捉异常
- */
-fun tryCatch(func: () -> Unit): Result<Unit> = try {
-    func()
-    Result(Unit)
-} catch (t: Throwable) {
-    Result(Unit, t)
-}
-
-/**
- * 仅捕捉异常
+ * 捕捉异常，并返回默认值
  */
 fun <T> tryCatch(default: T, func: () -> T): Result<T> = try {
     Result(func())
 } catch (t: Throwable) {
     Result(default, t)
 }
+
+/**
+ * 捕捉异常
+ */
+fun tryCatch(func: () -> Unit): Result<Unit> = tryCatch(Unit, func)
