@@ -1,24 +1,29 @@
 package vip.oicp.xiaobaicz.lib.common.utils
 
-/**
- * 仅捕捉异常
- */
-fun catchOnly(func: () -> Unit) = try {
-    func()
-} catch (t: Throwable) {
-    handleThrowable(t)
+class Result<T>(
+    val result: T,
+    private val t: Throwable? = null,
+) {
+    fun doOnError(func: (Throwable)->Unit) {
+        func(t ?: return)
+    }
 }
 
 /**
  * 仅捕捉异常
  */
-fun <T> catchOnly(default: T, func: () -> T): T = try {
+fun tryCatch(func: () -> Unit): Result<Unit> = try {
     func()
+    Result(Unit)
 } catch (t: Throwable) {
-    handleThrowable(t)
-    default
+    Result(Unit, t)
 }
 
-private fun handleThrowable(t: Throwable) {
-    t.printStackTrace()
+/**
+ * 仅捕捉异常
+ */
+fun <T> tryCatch(default: T, func: () -> T): Result<T> = try {
+    Result(func())
+} catch (t: Throwable) {
+    Result(default, t)
 }

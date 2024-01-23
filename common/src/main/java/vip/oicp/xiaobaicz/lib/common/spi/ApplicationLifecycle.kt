@@ -2,24 +2,24 @@ package vip.oicp.xiaobaicz.lib.common.spi
 
 import android.app.Application
 import android.content.Context
-import vip.oicp.xiaobaicz.lib.common.utils.catchOnly
+import vip.oicp.xiaobaicz.lib.common.utils.tryCatch
 import java.util.ServiceLoader
 
 object ApplicationLifecycle {
 
     @JvmStatic
     val spiList: List<ApplicationLifecycleSpi> by lazy {
-        catchOnly(emptyList()) {
+        tryCatch(emptyList()) {
             val clazz = ApplicationLifecycleSpi::class.java
             ServiceLoader.load(clazz, clazz.classLoader).toList()
-        }
+        }.result
     }
 
     @JvmStatic
     fun attachBaseContext(context: Context?) {
         context ?: return
         spiList.forEach {
-            catchOnly {
+            tryCatch {
                 it.onAttachBaseContext(context)
             }
         }
@@ -28,7 +28,7 @@ object ApplicationLifecycle {
     @JvmStatic
     fun onCreate(application: Application) {
         spiList.forEach {
-            catchOnly {
+            tryCatch {
                 it.onCreate(application)
             }
         }
