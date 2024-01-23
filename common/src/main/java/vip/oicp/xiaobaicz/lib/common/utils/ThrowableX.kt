@@ -1,7 +1,7 @@
 package vip.oicp.xiaobaicz.lib.common.utils
 
 class Result<T>(
-    val result: T,
+    val value: T,
     private val t: Throwable? = null,
 ) {
     fun doOnError(func: (Throwable)->Unit) {

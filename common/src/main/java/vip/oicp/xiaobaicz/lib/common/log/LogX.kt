@@ -8,7 +8,7 @@ fun println4List(vararg any: Any?) {
         append("[")
         append(tryCatch("undefined") {
             Thread.currentThread().stackTrace[6].methodName
-        }.result)
+        }.value)
         any.forEach {
             append("  ")
             append(it)

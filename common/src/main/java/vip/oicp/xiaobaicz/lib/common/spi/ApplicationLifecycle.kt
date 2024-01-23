@@ -12,7 +12,7 @@ object ApplicationLifecycle {
         tryCatch(emptyList()) {
             val clazz = ApplicationLifecycleSpi::class.java
             ServiceLoader.load(clazz, clazz.classLoader).toList()
-        }.result
+        }.value
     }
 
     @JvmStatic
