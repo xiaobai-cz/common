@@ -22,9 +22,9 @@
 
 -dontshrink
 
--keep public class vip.oicp.xiaobaicz.lib.common.** {
+-keep public class io.github.xiaobaicz.lib.common.** {
     public *;
 }
 
--keep interface vip.oicp.xiaobaicz.lib.common.spi.ApplicationLifecycleSpi { *; }
--keep class * implements vip.oicp.xiaobaicz.lib.common.spi.ApplicationLifecycleSpi { *; }
+-keep interface io.github.xiaobaicz.common.spi.ApplicationLifecycleSpi { *; }
+-keep class * implements io.github.xiaobaicz.common.spi.ApplicationLifecycleSpi { *; }

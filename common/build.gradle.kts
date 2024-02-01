@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "vip.oicp.xiaobaicz.lib.common"
+    namespace = "io.github.xiaobaicz.common"
     compileSdk = 34
 
     defaultConfig {
@@ -45,7 +45,7 @@ dependencies {
 publishing {
     publications {
         register<MavenPublication>("release") {
-            groupId = "vip.oicp.xiaobaicz"
+            groupId = "io.github.xiaobaicz"
             artifactId = "common"
             version = "1.0.0"
 
