@@ -2,10 +2,10 @@ package io.github.xiaobaicz.demo
 
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
 import io.github.xiaobaicz.common.app.AppCompatActivity
 import io.github.xiaobaicz.common.provider.ContextProvider
 import io.github.xiaobaicz.demo.databinding.ActivityMainBinding
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 

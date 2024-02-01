@@ -1,19 +1,16 @@
 @file:Suppress("unused")
+
 package io.github.xiaobaicz.common.provider
 
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import androidx.annotation.MainThread
 import com.google.auto.service.AutoService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import io.github.xiaobaicz.common.app.Application.ActivityLifecycleCallbacksDefault
 import io.github.xiaobaicz.common.spi.ApplicationLifecycleSpi
-import java.lang.ref.Reference
-import java.lang.ref.WeakReference
-import java.util.concurrent.locks.Condition
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 /**
  * Android Context提供者
@@ -30,30 +27,18 @@ class ContextProvider : ApplicationLifecycleSpi, ActivityLifecycleCallbacksDefau
         @JvmStatic
         val applicationContext: Context get() = applicationContextOrNull ?: throw NullPointerException("application context is null")
 
-        // 有效范围在 onResumed - onPaused 之间
         @JvmStatic
-        private var topActivityRef: Reference<Activity>? = null
+        private val topActivityProvider = ObjectProvider<Activity>()
 
-        // topActivity 锁
-        @JvmStatic
-        private val topActivityLock: ReentrantLock by lazy { ReentrantLock(true) }
+        @[JvmStatic MainThread]
+        fun topActivity(block: (Activity) -> Unit) {
+            topActivityProvider.get(block)
+        }
 
-        // topActivity 锁同步状态
-        @JvmStatic
-        private val topActivityCond: Condition by lazy { topActivityLock.newCondition() }
-
-        @JvmStatic
-        suspend fun topActivity(): Activity = withContext(Dispatchers.IO) {
-            topActivityLock.lock()
-            var top = topActivityRef?.get()
-            try {
-                while (top == null) {
-                    topActivityCond.await()
-                    top = topActivityRef?.get()
-                }
-                top
-            } finally {
-                topActivityLock.unlock()
+        @[JvmStatic MainThread]
+        suspend fun topActivity(): Activity = suspendCancellableCoroutine { c ->
+            topActivityProvider.get { obj ->
+                c.resume(obj)
             }
         }
 
@@ -65,17 +50,11 @@ class ContextProvider : ApplicationLifecycleSpi, ActivityLifecycleCallbacksDefau
     }
 
     override fun onActivityPostResumed(activity: Activity) {
-        topActivityLock.withLock {
-            topActivityRef = WeakReference(activity)
-            topActivityCond.signalAll()
-        }
+        topActivityProvider.set(activity)
     }
 
     override fun onActivityPrePaused(activity: Activity) {
-        topActivityLock.withLock {
-            topActivityRef?.clear()
-            topActivityRef = null
-        }
+        topActivityProvider.clear()
     }
 
 }
