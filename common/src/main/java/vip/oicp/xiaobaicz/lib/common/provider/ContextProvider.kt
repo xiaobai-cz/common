@@ -5,10 +5,15 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import com.google.auto.service.AutoService
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import vip.oicp.xiaobaicz.lib.common.app.Application.ActivityLifecycleCallbacksDefault
 import vip.oicp.xiaobaicz.lib.common.spi.ApplicationLifecycleSpi
 import java.lang.ref.Reference
 import java.lang.ref.WeakReference
+import java.util.concurrent.locks.Condition
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /**
  * Android Context提供者
@@ -25,15 +30,32 @@ class ContextProvider : ApplicationLifecycleSpi, ActivityLifecycleCallbacksDefau
         @JvmStatic
         val applicationContext: Context get() = applicationContextOrNull ?: throw NullPointerException("application context is null")
 
-        // 由 onActivityPreStarted 进行赋值
+        // 有效范围在 onResumed - onPaused 之间
         @JvmStatic
-        private var topActivityContextRef: Reference<Context>? = null
+        private var topActivityRef: Reference<Activity>? = null
 
-        /**
-         * [Activity.onStart]开始生效
-         */
+        // topActivity 锁
         @JvmStatic
-        val topActivityContext: Context? get() = topActivityContextRef?.get()
+        private val topActivityLock: ReentrantLock by lazy { ReentrantLock(true) }
+
+        // topActivity 锁同步状态
+        @JvmStatic
+        private val topActivityCond: Condition by lazy { topActivityLock.newCondition() }
+
+        @JvmStatic
+        suspend fun topActivity(): Activity = withContext(Dispatchers.IO) {
+            topActivityLock.lock()
+            var top = topActivityRef?.get()
+            try {
+                while (top == null) {
+                    topActivityCond.await()
+                    top = topActivityRef?.get()
+                }
+                top
+            } finally {
+                topActivityLock.unlock()
+            }
+        }
 
     }
 
@@ -42,8 +64,18 @@ class ContextProvider : ApplicationLifecycleSpi, ActivityLifecycleCallbacksDefau
         application.registerActivityLifecycleCallbacks(this)
     }
 
-    override fun onActivityPreStarted(activity: Activity) {
-        topActivityContextRef = WeakReference(activity)
+    override fun onActivityPostResumed(activity: Activity) {
+        topActivityLock.withLock {
+            topActivityRef = WeakReference(activity)
+            topActivityCond.signalAll()
+        }
+    }
+
+    override fun onActivityPrePaused(activity: Activity) {
+        topActivityLock.withLock {
+            topActivityRef?.clear()
+            topActivityRef = null
+        }
     }
 
 }
