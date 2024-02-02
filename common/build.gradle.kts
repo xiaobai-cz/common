@@ -48,7 +48,7 @@ publishing {
         register<MavenPublication>("release") {
             groupId = "io.github.xiaobaicz"
             artifactId = "common"
-            version = "0.0.1"
+            version = "0.0.2"
 
             afterEvaluate {
                 from(components["release"])
@@ -56,7 +56,7 @@ publishing {
 
             pom {
                 name = "common"
-                description = "android auto line-height textview"
+                description = "android common lib"
                 url = "https://github.com/xiaobaicz/common"
                 licenses {
                     license {
