@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import io.github.xiaobaicz.common.app.AppCompatActivity
 import io.github.xiaobaicz.common.provider.ContextProvider
+import io.github.xiaobaicz.common.provider.await
 import io.github.xiaobaicz.demo.databinding.ActivityMainBinding
 import kotlinx.coroutines.launch
 
@@ -15,8 +16,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(bind.root)
         lifecycleScope.launch {
-            println(ContextProvider.applicationContext)
-            println(ContextProvider.topActivity())
+            println(ContextProvider.applicationContext.await())
+            println(ContextProvider.topActivity.await())
         }
     }
 

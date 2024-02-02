@@ -1,61 +1,60 @@
 package io.github.xiaobaicz.common.provider
 
-import androidx.annotation.MainThread
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import io.github.xiaobaicz.common.lang.runOnMainThread
+import kotlinx.coroutines.suspendCancellableCoroutine
 import java.lang.ref.Reference
 import java.lang.ref.WeakReference
-import java.util.concurrent.locks.Condition
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
+import kotlin.coroutines.resume
 
 class ObjectProvider<T : Any> {
-    private var ref: Reference<T>? = null
-    private val lock: ReentrantLock by lazy { ReentrantLock(true) }
-    private val cond: Condition by lazy { lock.newCondition() }
-    private val scope = MainScope()
 
-    @MainThread
-    fun get(block: (T) -> Unit) {
-        val obj = ref?.get()
-        if (obj != null) {
-            block(obj)
-            return
-        }
-        scope.launch {
-            awaitGet(block)
-        }
+    fun interface Callback<T : Any> {
+        fun value(obj: T)
     }
 
-    @MainThread
+    private var ref: Reference<T>? = null
+
+    private val awaitList = ArrayList<Callback<T>>()
+
     fun clear() {
-        lock.withLock {
+        runOnMainThread {
             ref?.clear()
             ref = null
         }
     }
 
-    @MainThread
-    fun set(obj: T) {
-        lock.withLock {
-            ref?.clear()
-            ref = WeakReference(obj)
-            cond.signalAll()
+    fun get(callback: Callback<T>) {
+        runOnMainThread {
+            val obj = ref?.get()
+            if (obj != null) {
+                callback.value(obj)
+                return@runOnMainThread
+            }
+            awaitList.add(callback)
         }
     }
 
-    private suspend fun awaitGet(block: (T) -> Unit) {
-        block(withContext(Dispatchers.IO) {
-            lock.withLock {
-                var obj = ref?.get()
-                while (obj == null) {
-                    cond.await()
-                    obj = ref?.get()
-                }
-                obj
-            }
-        })
+    fun set(obj: T) {
+        runOnMainThread {
+            ref?.clear()
+            ref = WeakReference(obj)
+            signal()
+        }
+    }
+
+    private fun signal() {
+        val obj = ref?.get() ?: return
+        val callbacks = awaitList.toList()
+        awaitList.clear()
+        for (callback in callbacks) {
+            callback.value(obj)
+        }
+    }
+
+}
+
+suspend fun <T : Any> ObjectProvider<T>.await(): T = suspendCancellableCoroutine { c ->
+    get { obj ->
+        c.resume(obj)
     }
 }

@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.org.jetbrains.kotlin.android)
     id("kotlin-kapt")
     `maven-publish`
+    signing
 }
 
 android {
@@ -47,11 +48,45 @@ publishing {
         register<MavenPublication>("release") {
             groupId = "io.github.xiaobaicz"
             artifactId = "common"
-            version = "1.0.0"
+            version = "0.0.1"
 
             afterEvaluate {
                 from(components["release"])
             }
+
+            pom {
+                name = "common"
+                description = "android auto line-height textview"
+                url = "https://github.com/xiaobaicz/common"
+                licenses {
+                    license {
+                        name = "The Apache License, Version 2.0"
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                }
+                developers {
+                    developer {
+                        name = "bocheng.lao"
+                        email = "xiaojinjincz@outlook.com"
+                        organization = "bocheng.lao"
+                        organizationUrl = "https://xiaobaicz.github.io"
+                    }
+                }
+                scm {
+                    connection = "scm:git:https://github.com/xiaobaicz/common.git"
+                    developerConnection = "scm:git:https://github.com/xiaobaicz/common.git"
+                    url = "https://github.com/xiaobaicz/common/tree/main"
+                }
+            }
         }
     }
+    repositories {
+        maven {
+            url = uri("../build/maven")
+        }
+    }
+}
+
+signing {
+    sign(publishing.publications["release"])
 }
