@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(bind.root)
         lifecycleScope.launch {
             println(ContextProvider.applicationContext.await())
-            println(ContextProvider.topActivity.await())
+            println(ContextProvider.visibleActivity.await())
         }
     }
 

@@ -19,7 +19,7 @@ class ContextProvider : ApplicationLifecycleSpi, ActivityLifecycleCallbacksDefau
         val applicationContext = ObjectProvider<Context>()
 
         @JvmStatic
-        val topActivity = ObjectProvider<Activity>()
+        val visibleActivity = ObjectProvider<Activity>()
 
     }
 
@@ -29,11 +29,11 @@ class ContextProvider : ApplicationLifecycleSpi, ActivityLifecycleCallbacksDefau
     }
 
     override fun onActivityPostResumed(activity: Activity) {
-        topActivity.set(activity)
+        visibleActivity.set(activity)
     }
 
     override fun onActivityPrePaused(activity: Activity) {
-        topActivity.clear()
+        visibleActivity.clear()
     }
 
 }
