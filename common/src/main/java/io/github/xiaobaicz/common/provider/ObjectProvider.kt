@@ -48,28 +48,28 @@ class ObjectProvider<T : Any> {
     fun get(callback: Callback<T>) {
         runOnMainThread {
             val obj = ref?.get()
-            if (obj != null) {
+            if (obj != null)
                 callback.value(obj)
-                return@runOnMainThread
-            }
-            awaitList.add(callback)
+            else
+                awaitList.add(callback)
         }
     }
 
     /**
-     * 设置对象
+     * 设置对象，并唤醒所有等待中的get方法
+     * @param obj 对象
+     * @param cache 是否缓存，下次get能否获得该值
      */
-    fun set(obj: T) {
+    fun set(obj: T, cache: Boolean = true) {
         runOnMainThread {
             ref?.clear()
-            ref = WeakReference(obj)
-            signal()
+            ref = if (cache) WeakReference(obj) else null
+            notifyAll(obj)
         }
     }
 
     // 通知回调列表，并清空
-    private fun signal() {
-        val obj = ref?.get() ?: return
+    private fun notifyAll(obj: T) {
         for (callback in awaitList)
             callback.value(obj)
         awaitList.clear()
@@ -80,8 +80,6 @@ class ObjectProvider<T : Any> {
 /**
  * 获取对象，等待到对象非空
  */
-suspend fun <T : Any> ObjectProvider<T>.await(): T = suspendCancellableCoroutine { c ->
-    get { obj ->
-        c.resume(obj)
-    }
+suspend fun <T : Any> ObjectProvider<T>.await(): T = suspendCancellableCoroutine {
+    get(it::resume)
 }
