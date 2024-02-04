@@ -3,11 +3,11 @@ package io.github.xiaobaicz.common.recyclerview
 import androidx.recyclerview.widget.DiffUtil
 import androidx.viewbinding.ViewBinding
 
-abstract class BindingListAdapter<T: ViewBinding> : BindingAdapter<T>() {
+abstract class BindingListAdapter<V: ViewBinding, D : Any> : BindingAdapter<V>() {
 
-    private val callback: CallbackWrapper = CallbackWrapper()
+    private val callback: CallbackWrapper<D> = CallbackWrapper()
 
-    var data: List<Any> = emptyList()
+    var data: List<D> = emptyList()
         set(value) {
             callback.oldData = field
             callback.newData = value
@@ -18,20 +18,20 @@ abstract class BindingListAdapter<T: ViewBinding> : BindingAdapter<T>() {
 
     override fun getItemCount(): Int = data.size
 
-    fun setCallback(callback: CompareCallback) {
+    fun setCallback(callback: CompareCallback<D>) {
         this.callback.callback = callback
     }
 
-    interface CompareCallback {
-        fun areItemsTheSame(oldData: Any, newData: Any): Boolean
-        fun areContentsTheSame(oldData: Any, newData: Any): Boolean = true
-        fun getChangePayload(oldData: Any, newData: Any): Any? = null
+    interface CompareCallback<D> {
+        fun areItemsTheSame(oldData: D, newData: D): Boolean
+        fun areContentsTheSame(oldData: D, newData: D): Boolean = true
+        fun getChangePayload(oldData: D, newData: D): D? = null
     }
 
-    private class CallbackWrapper : DiffUtil.Callback() {
-        var callback: CompareCallback? = null
-        var oldData: List<Any> = emptyList()
-        var newData: List<Any> = emptyList()
+    private class CallbackWrapper<D> : DiffUtil.Callback() {
+        var callback: CompareCallback<D>? = null
+        var oldData: List<D> = emptyList()
+        var newData: List<D> = emptyList()
         override fun getOldListSize(): Int = oldData.size
 
         override fun getNewListSize(): Int = newData.size

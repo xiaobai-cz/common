@@ -9,10 +9,10 @@ interface ViewType {
 
 class Combine(
     val factoryMap: HashMap<Int, BindingFactory<ViewBinding>> = HashMap(),
-    val bindingMap: HashMap<Int, OnBindBinding<ViewBinding>> = HashMap(),
+    val bindingMap: HashMap<Int, OnBindBinding<ViewBinding, ViewType>> = HashMap(),
 )
 
-class CombineAdapter(private val combine: Combine) : BindingListAdapter<ViewBinding>() {
+class CombineAdapter(private val combine: Combine) : BindingListAdapter<ViewBinding, ViewType>() {
     var onBindingCreate: OnBindingCreate<ViewBinding>? = null
 
     override fun bindingFactory(viewType: Int): BindingFactory<ViewBinding> {
@@ -25,21 +25,17 @@ class CombineAdapter(private val combine: Combine) : BindingListAdapter<ViewBind
 
     override fun onBindBinding(bind: ViewBinding, position: Int) {
         val any = data[position]
-        if (any !is ViewType) throw IllegalArgumentException("data is not impl ViewType by position: $position")
         val binding = combine.bindingMap[any.viewType] ?: throw NullPointerException("not find binding by viewType: ${any.viewType}")
-        binding(bind, any, position)
+        binding.bind(bind, any, position)
     }
 
-    override fun getItemViewType(position: Int): Int = when (val any = data[position]) {
-        is ViewType -> any.viewType
-        else -> throw IllegalArgumentException("data is not impl ViewType by position: $position")
-    }
+    override fun getItemViewType(position: Int): Int = data[position].viewType
 }
 
-fun <T : ViewBinding> Combine.bind(viewType: Int, factory: BindingFactory<T>, binding: OnBindBinding<T>) {
-    factoryMap[viewType] = factory
-    @Suppress("UNCHECKED_CAST")
-    bindingMap[viewType] = binding as OnBindBinding<ViewBinding>
+@Suppress("UNCHECKED_CAST")
+inline fun <reified V : ViewBinding, D : ViewType> Combine.bind(viewType: Int, binding: OnBindBinding<V, D>) {
+    factoryMap[viewType] = createBindingFactory<V>() as BindingFactory<ViewBinding>
+    bindingMap[viewType] = binding as OnBindBinding<ViewBinding, ViewType>
 }
 
 fun RecyclerView.combineAdapter(config: Combine.() -> Unit): CombineAdapter {

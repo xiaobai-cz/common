@@ -1,3 +1,5 @@
 package io.github.xiaobaicz.common.recyclerview
 
-typealias OnBindBinding<T> = (T, Any, Int) -> Unit
+fun interface OnBindBinding<V, D> {
+    fun bind(v: V, d: D, p: Int)
+}

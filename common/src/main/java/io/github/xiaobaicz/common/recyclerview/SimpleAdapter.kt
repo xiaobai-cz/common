@@ -1,20 +1,18 @@
-@file:JvmName("RecyclerViewX")
-
 package io.github.xiaobaicz.common.recyclerview
 
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 
-fun <T : ViewBinding> RecyclerView.simpleAdapter(factory: BindingFactory<T>, onBindBinding: OnBindBinding<T>): SimpleAdapter<T> {
-    val adapter = SimpleAdapter(factory, onBindBinding)
+inline fun <reified V : ViewBinding, D : Any> RecyclerView.simpleAdapter(onBindBinding: OnBindBinding<V, D>): SimpleAdapter<V, D> {
+    val adapter = SimpleAdapter(createBindingFactory(), onBindBinding)
     this.adapter = adapter
     return adapter
 }
 
-class SimpleAdapter<T : ViewBinding>(
+class SimpleAdapter<T : ViewBinding, D : Any>(
     private val factory: BindingFactory<T>,
-    private val onBindBinding: OnBindBinding<T>,
-) : BindingListAdapter<T>() {
+    private val onBindBinding: OnBindBinding<T, D>,
+) : BindingListAdapter<T, D>() {
     var onBindingCreate: OnBindingCreate<T>? = null
 
     override fun bindingFactory(viewType: Int): BindingFactory<T> {
@@ -26,6 +24,6 @@ class SimpleAdapter<T : ViewBinding>(
     }
 
     override fun onBindBinding(bind: T, position: Int) {
-        onBindBinding(bind, data[position], position)
+        onBindBinding.bind(bind, data[position], position)
     }
 }
