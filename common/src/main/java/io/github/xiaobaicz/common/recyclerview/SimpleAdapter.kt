@@ -3,8 +3,9 @@ package io.github.xiaobaicz.common.recyclerview
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 
-inline fun <reified V : ViewBinding, D : Any> RecyclerView.simpleAdapter(onBindBinding: OnBindBinding<V, D>): SimpleAdapter<V, D> {
+inline fun <reified V : ViewBinding, D : Any> RecyclerView.simpleAdapter(onBindingCreate: OnBindingCreate<V>? = null, onBindBinding: OnBindBinding<V, D>): SimpleAdapter<V, D> {
     val adapter = SimpleAdapter(createBindingFactory(), onBindBinding)
+    adapter.onBindingCreate = onBindingCreate
     this.adapter = adapter
     return adapter
 }

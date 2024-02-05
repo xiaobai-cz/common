@@ -3,6 +3,21 @@ package io.github.xiaobaicz.common.recyclerview
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 
+fun RecyclerView.combineAdapter(onBindingCreate: OnBindingCreate<ViewBinding>? = null, config: Combine.() -> Unit): CombineAdapter {
+    val combine = Combine()
+    combine.config()
+    val adapter = CombineAdapter(combine)
+    adapter.onBindingCreate = onBindingCreate
+    this.adapter = adapter
+    return adapter
+}
+
+@Suppress("UNCHECKED_CAST")
+inline fun <reified V : ViewBinding, D : ViewType> Combine.bind(viewType: Int, binding: OnBindBinding<V, D>) {
+    factoryMap[viewType] = createBindingFactory<V>() as BindingFactory<ViewBinding>
+    bindingMap[viewType] = binding as OnBindBinding<ViewBinding, ViewType>
+}
+
 interface ViewType {
     val viewType: Int
 }
@@ -30,18 +45,4 @@ class CombineAdapter(private val combine: Combine) : BindingListAdapter<ViewBind
     }
 
     override fun getItemViewType(position: Int): Int = data[position].viewType
-}
-
-@Suppress("UNCHECKED_CAST")
-inline fun <reified V : ViewBinding, D : ViewType> Combine.bind(viewType: Int, binding: OnBindBinding<V, D>) {
-    factoryMap[viewType] = createBindingFactory<V>() as BindingFactory<ViewBinding>
-    bindingMap[viewType] = binding as OnBindBinding<ViewBinding, ViewType>
-}
-
-fun RecyclerView.combineAdapter(config: Combine.() -> Unit): CombineAdapter {
-    val combine = Combine()
-    combine.config()
-    val adapter = CombineAdapter(combine)
-    this.adapter = adapter
-    return adapter
 }
