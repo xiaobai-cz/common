@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import io.github.xiaobaicz.common.app.AppCompatActivity
 import io.github.xiaobaicz.common.provider.ContextProvider
 import io.github.xiaobaicz.common.provider.await
-import io.github.xiaobaicz.common.recyclerview.ViewType
+import io.github.xiaobaicz.common.recyclerview.CombineAdapter
 import io.github.xiaobaicz.common.recyclerview.bind
 import io.github.xiaobaicz.common.recyclerview.combineAdapter
 import io.github.xiaobaicz.demo.bean.Img
@@ -16,23 +16,29 @@ import io.github.xiaobaicz.demo.bean.VIEW_TYPE_MSG
 import io.github.xiaobaicz.demo.databinding.ActivityMainBinding
 import io.github.xiaobaicz.demo.databinding.ItemNewsImgBinding
 import io.github.xiaobaicz.demo.databinding.ItemNewsMsgBinding
+import io.github.xiaobaicz.demo.test.newsData
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
     private val bind by lazy { ActivityMainBinding.inflate(layoutInflater) }
 
+    private val adapter by lazy { initNews() }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(bind.root)
+
         lifecycleScope.launch {
             println(ContextProvider.applicationContext.await())
             println(ContextProvider.visibleActivity.await())
+            adapter.data = newsData()
         }
+    }
 
+    private fun initNews(): CombineAdapter {
         bind.news.layoutManager = LinearLayoutManager(this)
-
-        val adapter = bind.news.combineAdapter {
+        return bind.news.combineAdapter {
             bind<ItemNewsMsgBinding, Msg>(VIEW_TYPE_MSG) { v, d, p ->
                 v.title.text = d.title
                 v.msg.text = d.msg
@@ -42,20 +48,11 @@ class MainActivity : AppCompatActivity() {
                 v.img.setBackgroundColor(d.color.toInt())
             }
         }.doOnBindingCreate<ItemNewsMsgBinding> {
+            // 创建ItemNewsMsgBinding时回调
             println(it)
         }.doOnBindingCreate<ItemNewsImgBinding> {
+            // 创建ItemNewsImgBinding时回调
             println(it)
-        }
-
-        adapter.data = ArrayList<ViewType>().apply {
-            val cs = arrayOf(0xffff0000, 0xff00ff00, 0xff0000ff)
-            repeat(1000) {
-                if (it and 1 == 0) {
-                    add(Msg("震惊${it}号", "震惊震惊震惊震惊震惊震惊震惊震"))
-                } else {
-                    add(Img("震惊${it}号", cs[it % cs.size]))
-                }
-            }
         }
     }
 
