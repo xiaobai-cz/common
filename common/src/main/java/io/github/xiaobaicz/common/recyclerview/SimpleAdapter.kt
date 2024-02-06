@@ -37,7 +37,7 @@ class SimpleAdapter<V : ViewBinding, D : Any>(
     /**
      * Binding创建回调
      */
-    fun setOnBindingCreate(onBindingCreate: OnBindingCreate<V>?): SimpleAdapter<V, D> {
+    fun doOnBindingCreate(onBindingCreate: OnBindingCreate<V>): SimpleAdapter<V, D> {
         this.onBindingCreate = onBindingCreate
         return this
     }

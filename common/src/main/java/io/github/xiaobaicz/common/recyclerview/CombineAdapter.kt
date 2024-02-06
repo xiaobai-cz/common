@@ -43,14 +43,14 @@ class Combine(
  */
 class CombineAdapter(private val combine: Combine) : BindingListAdapter<ViewBinding, ViewType>() {
     // Binding创建回调
-    private var onBindingCreate: OnBindingCreate<ViewBinding>? = null
+    val onBindingCreateMap = HashMap<Class<*>, OnBindingCreate<ViewBinding>>()
 
     override fun bindingFactory(viewType: Int): BindingFactory<ViewBinding> {
         return combine.factoryMap[viewType] ?: throw NullPointerException("not find factory by viewType: $viewType")
     }
 
     override fun onCreate(bind: ViewBinding) {
-        onBindingCreate?.onCreate(bind)
+        onBindingCreateMap[bind::class.java]?.onCreate(bind)
     }
 
     override fun onBind(bind: ViewBinding, position: Int) {
@@ -61,11 +61,9 @@ class CombineAdapter(private val combine: Combine) : BindingListAdapter<ViewBind
 
     override fun getItemViewType(position: Int): Int = data[position].viewType
 
-    /**
-     * Binding创建回调
-     */
-    fun setOnBindingCreate(onBindingCreate: OnBindingCreate<ViewBinding>?): CombineAdapter {
-        this.onBindingCreate = onBindingCreate
+    inline fun <reified V : ViewBinding> doOnBindingCreate(onBindingCreate: OnBindingCreate<V>): CombineAdapter {
+        @Suppress("UNCHECKED_CAST")
+        onBindingCreateMap[V::class.java] = onBindingCreate as OnBindingCreate<ViewBinding>
         return this
     }
 }
