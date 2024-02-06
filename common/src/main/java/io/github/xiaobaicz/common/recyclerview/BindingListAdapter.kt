@@ -2,6 +2,11 @@ package io.github.xiaobaicz.common.recyclerview
 
 import androidx.recyclerview.widget.DiffUtil
 import androidx.viewbinding.ViewBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * BindingAdapter基础上集成 数据集 & DiffUtil
@@ -10,18 +15,35 @@ abstract class BindingListAdapter<V: ViewBinding, D : Any> : BindingAdapter<V>()
 
     private val callback: CallbackWrapper<D> = CallbackWrapper()
 
+    private val mainScope = MainScope()
+
+    // reset计数器
+    private var count = 0
+
     /**
      * 数据集，通过重新赋值触发DiffUtil
      */
     var data: List<D> = emptyList()
         set(data) {
-            val newData = if (field == data) data.toList() else data
-            callback.oldData = field
-            callback.newData = newData
-            field = newData
-            DiffUtil.calculateDiff(callback)
-                .dispatchUpdatesTo(this)
+            mainScope.launch {
+                val id = ++count
+                // 异步计算差异
+                val diff = calculateDiff(field, data)
+                // 只获取最后一次计算结果
+                if (id != count) return@launch
+                field = data
+                diff.dispatchUpdatesTo(this@BindingListAdapter)
+            }
         }
+
+    private suspend fun calculateDiff(old: List<D>, data: List<D>): DiffUtil.DiffResult {
+        return withContext(Dispatchers.IO) {
+            val newData = if (old == data) data.toList() else data
+            callback.oldData = old
+            callback.newData = newData
+            DiffUtil.calculateDiff(callback)
+        }
+    }
 
     override fun getItemCount(): Int = data.size
 
