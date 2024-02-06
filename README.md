@@ -3,11 +3,11 @@
 ## 依赖
 ~~~ kts
 // build.gradle.kts
-implementation("io.github.xiaobaicz:common:0.0.3")
+implementation("io.github.xiaobaicz:common:0.0.4")
 ~~~
 ~~~ gradle
 // build.gradle
-implementation 'io.github.xiaobaicz:common:0.0.3'
+implementation 'io.github.xiaobaicz:common:0.0.4'
 ~~~
 
 ## 功能
