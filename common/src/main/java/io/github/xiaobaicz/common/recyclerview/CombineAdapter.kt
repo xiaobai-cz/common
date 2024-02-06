@@ -3,46 +3,69 @@ package io.github.xiaobaicz.common.recyclerview
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 
-fun RecyclerView.combineAdapter(onBindingCreate: OnBindingCreate<ViewBinding>? = null, config: Combine.() -> Unit): CombineAdapter {
+/**
+ * 组合适配器便捷方法
+ */
+fun RecyclerView.combineAdapter(config: Combine.() -> Unit): CombineAdapter {
     val combine = Combine()
     combine.config()
     val adapter = CombineAdapter(combine)
-    adapter.onBindingCreate = onBindingCreate
     this.adapter = adapter
     return adapter
 }
 
+/**
+ * 视图类型 & Binding 关联
+ */
 @Suppress("UNCHECKED_CAST")
-inline fun <reified V : ViewBinding, D : ViewType> Combine.bind(viewType: Int, binding: OnBindBinding<V, D>) {
-    factoryMap[viewType] = createBindingFactory<V>() as BindingFactory<ViewBinding>
-    bindingMap[viewType] = binding as OnBindBinding<ViewBinding, ViewType>
+inline fun <reified V : ViewBinding, D : ViewType> Combine.bind(viewType: Int, binding: OnBinding<V, D>) {
+    factoryMap[viewType] = BindingFactory.create<V>() as BindingFactory<ViewBinding>
+    bindingMap[viewType] = binding as OnBinding<ViewBinding, ViewType>
 }
 
+/**
+ * 视图类型
+ */
 interface ViewType {
     val viewType: Int
 }
 
+/**
+ * Factory&Binding组合
+ */
 class Combine(
     val factoryMap: HashMap<Int, BindingFactory<ViewBinding>> = HashMap(),
-    val bindingMap: HashMap<Int, OnBindBinding<ViewBinding, ViewType>> = HashMap(),
+    val bindingMap: HashMap<Int, OnBinding<ViewBinding, ViewType>> = HashMap(),
 )
 
+/**
+ * 组合适配器，多类型列表
+ */
 class CombineAdapter(private val combine: Combine) : BindingListAdapter<ViewBinding, ViewType>() {
-    var onBindingCreate: OnBindingCreate<ViewBinding>? = null
+    // Binding创建回调
+    private var onBindingCreate: OnBindingCreate<ViewBinding>? = null
 
     override fun bindingFactory(viewType: Int): BindingFactory<ViewBinding> {
         return combine.factoryMap[viewType] ?: throw NullPointerException("not find factory by viewType: $viewType")
     }
 
-    override fun onBindingCreate(bind: ViewBinding) {
-        onBindingCreate?.onBindingCreate(bind)
+    override fun onCreate(bind: ViewBinding) {
+        onBindingCreate?.onCreate(bind)
     }
 
-    override fun onBindBinding(bind: ViewBinding, position: Int) {
+    override fun onBind(bind: ViewBinding, position: Int) {
         val any = data[position]
         val binding = combine.bindingMap[any.viewType] ?: throw NullPointerException("not find binding by viewType: ${any.viewType}")
-        binding.bind(bind, any, position)
+        binding.onBind(bind, any, position)
     }
 
     override fun getItemViewType(position: Int): Int = data[position].viewType
+
+    /**
+     * Binding创建回调
+     */
+    fun setOnBindingCreate(onBindingCreate: OnBindingCreate<ViewBinding>?): CombineAdapter {
+        this.onBindingCreate = onBindingCreate
+        return this
+    }
 }
