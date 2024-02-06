@@ -11,8 +11,8 @@ import io.github.xiaobaicz.common.recyclerview.bind
 import io.github.xiaobaicz.common.recyclerview.combineAdapter
 import io.github.xiaobaicz.demo.bean.Img
 import io.github.xiaobaicz.demo.bean.Msg
-import io.github.xiaobaicz.demo.bean.VIEW_TYPE_IMG
-import io.github.xiaobaicz.demo.bean.VIEW_TYPE_MSG
+import io.github.xiaobaicz.demo.constant.VT_IMG
+import io.github.xiaobaicz.demo.constant.VT_MSG
 import io.github.xiaobaicz.demo.databinding.ActivityMainBinding
 import io.github.xiaobaicz.demo.databinding.ItemNewsImgBinding
 import io.github.xiaobaicz.demo.databinding.ItemNewsMsgBinding
@@ -39,11 +39,11 @@ class MainActivity : AppCompatActivity() {
     private fun initNews(): CombineAdapter {
         bind.news.layoutManager = LinearLayoutManager(this)
         return bind.news.combineAdapter {
-            bind<ItemNewsMsgBinding, Msg>(VIEW_TYPE_MSG) { v, d, p ->
+            bind<ItemNewsMsgBinding, Msg>(VT_MSG) { v, d, p ->
                 v.title.text = d.title
                 v.msg.text = d.msg
             }
-            bind<ItemNewsImgBinding, Img>(VIEW_TYPE_IMG) { v, d, p ->
+            bind<ItemNewsImgBinding, Img>(VT_IMG) { v, d, p ->
                 v.title.text = d.title
                 v.img.setBackgroundColor(d.color.toInt())
             }
