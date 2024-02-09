@@ -70,7 +70,7 @@ fun <T> Intent?.parseData(): T? {
  * @throws ClassCastException 数据类型转换失败
  */
 @Throws(ClassCastException::class)
-fun <T> Intent?.parseResultData(): T? {
+private fun <T> Intent?.parseResultData(): T? {
     if (this == null) return null
     val data = parse<T>(KEY_RESULT_DATA)
     delCache(KEY_RESULT_DATA)
