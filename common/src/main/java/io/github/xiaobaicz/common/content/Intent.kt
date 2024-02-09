@@ -146,7 +146,7 @@ inline fun <reified A : Activity> Fragment.startActivity(obj: Any? = null) {
 /**
  * 关闭并返回数据
  */
-fun <T : Any> Activity.finish(code: Int, obj: T? = null) {
+fun <T : Any> Activity.finishAndResult(code: Int, obj: T? = null) {
     val intent = dataIntent(KEY_RESULT_DATA, obj)
     setResult(code, intent)
     finish()
@@ -155,8 +155,8 @@ fun <T : Any> Activity.finish(code: Int, obj: T? = null) {
 /**
  * 关闭并返回数据
  */
-fun <T : Any> Fragment.finish(code: Int, obj: T? = null) {
-    requireActivity().finish(code, obj)
+fun <T : Any> Fragment.finishAndResult(code: Int, obj: T? = null) {
+    requireActivity().finishAndResult(code, obj)
 }
 
 // ----------------------------------
@@ -190,9 +190,20 @@ inline fun <reified A : Activity> ActivityResultLauncher<Intent>.launch(obj: Any
 // ----------------------------------
 
 class ActivityResult<T>(
-    val resultCode: Int,
-    val data: T?,
-)
+    private val resultCode: Int,
+    private val data: T?,
+) {
+    fun doOnSuccess(block: (T?) -> Unit): ActivityResult<T> {
+        if (resultCode != Activity.RESULT_OK) return this
+        block(data)
+        return this
+    }
+    fun doOnFail(block: (Int, T?) -> Unit): ActivityResult<T> {
+        if (resultCode == Activity.RESULT_OK) return this
+        block(resultCode, data)
+        return this
+    }
+}
 
 // ----------------------------------
 
