@@ -7,9 +7,9 @@ import java.lang.ref.WeakReference
 import kotlin.coroutines.resume
 
 /**
- * ### 对象提供者
  * 实现了获取对象行为
  * - 对象为空：等待对象不为空时返回
+ * - 对象为空：不等待，直接返回null
  * - 对象非空：直接返回
  */
 class ObjectProvider<T : Any> {
@@ -53,6 +53,14 @@ class ObjectProvider<T : Any> {
             else
                 awaitList.add(callback)
         }
+    }
+
+    /**
+     * 即时获取对象，为空情况下不等待，返回null
+     * @return 对象，可空
+     */
+    fun get(): T? {
+        return ref?.get()
     }
 
     /**
