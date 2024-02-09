@@ -5,9 +5,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.github.xiaobaicz.common.app.AppCompatActivity
 import io.github.xiaobaicz.common.content.launch
-import io.github.xiaobaicz.common.content.parseResultData
 import io.github.xiaobaicz.common.content.registerForActivityResult
-import io.github.xiaobaicz.common.content.toActivity
+import io.github.xiaobaicz.common.content.startActivity
 import io.github.xiaobaicz.common.provider.ContextProvider
 import io.github.xiaobaicz.common.provider.await
 import io.github.xiaobaicz.common.recyclerview.CombineAdapter
@@ -29,10 +28,10 @@ class MainActivity : AppCompatActivity() {
 
     private val adapter by lazy { initNews() }
 
-    private val launcher = registerForActivityResult {
+    private val launcher = registerForActivityResult<String> {
         // 接收返回数据
         println(it.resultCode)
-        println(it.data.parseResultData<String>())
+        println(it.data)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,12 +46,12 @@ class MainActivity : AppCompatActivity() {
 
         bind.start.setOnClickListener {
             // 跳转，传输数据
-            toActivity<DataActivity>("随便传什么都行")
+            startActivity<DataActivity>("随便传什么都行")
         }
 
         bind.startCallback.setOnClickListener {
             // 跳转，传输数据，并等待返回
-            launcher.launch<DataActivity>(this, "随便传什么都行，还能返回值")
+            launcher.launch<DataActivity>("随便传什么都行，还能返回值")
         }
     }
 
