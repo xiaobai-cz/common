@@ -30,8 +30,11 @@ class MainActivity : AppCompatActivity() {
 
     private val launcher = registerForActivityResult<String> {
         // 接收返回数据
-        println(it.resultCode)
-        println(it.data)
+        it.doOnSuccess { d ->
+            println(d)
+        }.doOnFail { code, d ->
+            println("code: $code, data: $d")
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
