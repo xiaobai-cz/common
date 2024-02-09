@@ -3,14 +3,14 @@ package io.github.xiaobaicz.common.content
 import android.app.Activity
 import android.app.Application
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import androidx.activity.ComponentActivity
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleOwner
 import com.google.auto.service.AutoService
 import io.github.xiaobaicz.common.app.Application.ActivityLifecycleCallbacksDefault
 import io.github.xiaobaicz.common.provider.ContextProvider
@@ -21,10 +21,10 @@ import java.util.UUID
 private val dataCacheMap = HashMap<String, Any>()
 
 // 传输数据Key A -> B
-const val KEY_DATA = "intent_x_data"
+private const val KEY_DATA = "intent_x_data"
 
 // 返回数据Key A <- B
-const val KEY_RESULT_DATA = "intent_x_result_data"
+private const val KEY_RESULT_DATA = "intent_x_result_data"
 
 // ----------------------------------
 
@@ -72,27 +72,25 @@ fun <T> Intent?.parseData(): T? {
 @Throws(ClassCastException::class)
 fun <T> Intent?.parseResultData(): T? {
     if (this == null) return null
-    return parse<T>(KEY_RESULT_DATA, true)
+    val data = parse<T>(KEY_RESULT_DATA)
+    delCache(KEY_RESULT_DATA)
+    return data
 }
 
 // 解析数据
 @Suppress("UNCHECKED_CAST")
 @Throws(ClassCastException::class)
-private fun <T> Intent.parse(iKey: String, del: Boolean = false): T? {
+private fun <T> Intent.parse(iKey: String): T? {
     val key = getStringExtra(iKey) ?: return null
-    val obj = getCache(key)
-    if (del)
-        delCache(key)
-    return obj as T?
+    return getCache(key) as T?
 }
 
 // ----------------------------------
 
 /**
- * 创建数据Intent, 禁止外部调用
- * @hide
+ * 创建数据Intent
  */
-fun <T : Any> dataIntent(iKey: String, obj: T? = null): Intent {
+private fun <T : Any> dataIntent(iKey: String, obj: T? = null): Intent {
     val intent = Intent()
     obj?.also { intent.putExtra(iKey, putCache(it)) }
     return intent
@@ -101,10 +99,18 @@ fun <T : Any> dataIntent(iKey: String, obj: T? = null): Intent {
 /**
  * 创建跳转Activity的数据Intent
  */
-inline fun <reified A : Activity> Context.startIntent(obj: Any? = null): Intent {
+fun <A : Activity> startIntent(clazz: Class<A>, obj: Any? = null): Intent {
     val intent = dataIntent(KEY_DATA, obj)
-    intent.component = ComponentName(this@startIntent, A::class.java)
+    val context = ContextProvider.applicationContext.get() ?: throw NullPointerException("application is null")
+    intent.component = ComponentName(context, clazz)
     return intent
+}
+
+/**
+ * 创建跳转Activity的数据Intent
+ */
+inline fun <reified A : Activity> startIntent(obj: Any? = null): Intent {
+    return startIntent(A::class.java, obj)
 }
 
 // ----------------------------------
@@ -113,9 +119,9 @@ inline fun <reified A : Activity> Context.startIntent(obj: Any? = null): Intent 
  * 跳转指定Activity
  * @param obj 数据
  */
-inline fun <reified A : Activity> toActivity(obj: Any? = null) {
+inline fun <reified A : Activity> startActivity(obj: Any? = null) {
     ContextProvider.visibleActivity.get {
-        it.toActivity<A>(obj)
+        it.startActivity<A>(obj)
     }
 }
 
@@ -123,7 +129,7 @@ inline fun <reified A : Activity> toActivity(obj: Any? = null) {
  * 跳转指定Activity
  * @param obj 数据
  */
-inline fun <reified A : Activity> Activity.toActivity(obj: Any? = null) {
+inline fun <reified A : Activity> Activity.startActivity(obj: Any? = null) {
     startActivity(startIntent<A>(obj))
 }
 
@@ -131,8 +137,8 @@ inline fun <reified A : Activity> Activity.toActivity(obj: Any? = null) {
  * 跳转指定Activity
  * @param obj 数据
  */
-inline fun <reified A : Activity> Fragment.toActivity(obj: Any? = null) {
-    startActivity(requireContext().startIntent<A>(obj))
+inline fun <reified A : Activity> Fragment.startActivity(obj: Any? = null) {
+    startActivity(startIntent<A>(obj))
 }
 
 // ----------------------------------
@@ -155,13 +161,38 @@ fun <T : Any> Fragment.finish(code: Int, obj: T? = null) {
 
 // ----------------------------------
 
-fun ComponentActivity.registerForActivityResult(callback: ActivityResultCallback<ActivityResult>): ActivityResultLauncher<Intent> {
-    return registerForActivityResult(ActivityResultContracts.StartActivityForResult(), callback)
+/**
+ * 注册Activity返回值
+ */
+fun <T> ComponentActivity.registerForActivityResult(callback: ActivityResultCallback<ActivityResult<T>>): ActivityResultLauncher<Intent> {
+    return registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        callback.onActivityResult(ActivityResult(it.resultCode, it.data.parseResultData()))
+    }
 }
 
-inline fun <reified A : Activity> ActivityResultLauncher<Intent>.launch(context: Context, obj: Any? = null) {
-    launch(context.startIntent<A>(obj))
+/**
+ * 注册Activity返回值
+ */
+fun <T> registerForActivityResult(registry: ActivityResultRegistry, owner: LifecycleOwner, callback: ActivityResultCallback<ActivityResult<T>>): ActivityResultLauncher<Intent> {
+    val key = "activity_rq_${UUID.randomUUID()}"
+    return registry.register(key, owner, ActivityResultContracts.StartActivityForResult()) {
+        callback.onActivityResult(ActivityResult(it.resultCode, it.data.parseResultData()))
+    }
 }
+
+/**
+ * 便捷启动器
+ */
+inline fun <reified A : Activity> ActivityResultLauncher<Intent>.launch(obj: Any? = null) {
+    launch(startIntent<A>(obj))
+}
+
+// ----------------------------------
+
+class ActivityResult<T>(
+    val resultCode: Int,
+    val data: T?,
+)
 
 // ----------------------------------
 
