@@ -5,11 +5,12 @@ import androidx.viewbinding.ViewBinding
 
 /**
  * 组合适配器便捷方法
+ * @param isolate 隔离ViewType
  */
-fun RecyclerView.combineAdapter(config: Combine.() -> Unit): CombineAdapter {
+fun RecyclerView.combineAdapter(isolate: Boolean = false, config: Combine.() -> Unit): CombineAdapter {
     val combine = Combine()
     combine.config()
-    val adapter = CombineAdapter(combine)
+    val adapter = CombineAdapter(combine, isolate)
     this.adapter = adapter
     return adapter
 }
@@ -40,13 +41,20 @@ class Combine(
 
 /**
  * 组合适配器，多类型列表
+ * @param isolate 隔离ViewType
  */
-class CombineAdapter(private val combine: Combine) : BindingListAdapter<ViewBinding, ViewType>() {
+class CombineAdapter(
+    private val combine: Combine,
+    private val isolate: Boolean = false,
+) : BindingListAdapter<ViewBinding, ViewType>() {
     // Binding创建回调
     val onBindingCreateMap = HashMap<Class<*>, OnBindingCreate<ViewBinding>>()
 
+    private val typeMap = HashMap<Int, Int>(2)
+
     override fun bindingFactory(viewType: Int): BindingFactory<ViewBinding> {
-        return combine.factoryMap[viewType] ?: throw NullPointerException("not find factory by viewType: $viewType")
+        val rawType = if (!isolate) viewType else typeMap[viewType]
+        return combine.factoryMap[rawType] ?: throw NullPointerException("not find factory by viewType: $rawType")
     }
 
     override fun onCreate(bind: ViewBinding) {
@@ -59,7 +67,13 @@ class CombineAdapter(private val combine: Combine) : BindingListAdapter<ViewBind
         binding.onBind(bind, any, position)
     }
 
-    override fun getItemViewType(position: Int): Int = data[position].viewType
+    override fun getItemViewType(position: Int): Int {
+        val any = data[position]
+        if (!isolate) return any.viewType
+        val type = System.identityHashCode(any)
+        typeMap[type] = any.viewType
+        return type
+    }
 
     inline fun <reified V : ViewBinding> doOnBindingCreate(onBindingCreate: OnBindingCreate<V>): CombineAdapter {
         @Suppress("UNCHECKED_CAST")
