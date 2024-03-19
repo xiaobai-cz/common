@@ -4,14 +4,14 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import com.google.auto.service.AutoService
-import io.github.xiaobaicz.common.app.Application.ActivityLifecycleCallbacksDefault
-import io.github.xiaobaicz.common.spi.ApplicationLifecycleSpi
+import io.github.xiaobaicz.common.app.ActivityLifecycleCallbacksDefault
+import io.github.xiaobaicz.initializer.Initializer
 
 /**
  * Android Context提供者
  */
-@AutoService(ApplicationLifecycleSpi::class)
-class ContextProvider : ApplicationLifecycleSpi, ActivityLifecycleCallbacksDefault {
+@AutoService(Initializer::class)
+class ContextProvider : Initializer, ActivityLifecycleCallbacksDefault {
 
     companion object {
 
@@ -23,9 +23,10 @@ class ContextProvider : ApplicationLifecycleSpi, ActivityLifecycleCallbacksDefau
 
     }
 
-    override fun onCreate(application: Application) {
-        applicationContext.set(application)
-        application.registerActivityLifecycleCallbacks(this)
+    override fun onInit(context: Context) {
+        if (context !is Application) throw RuntimeException()
+        applicationContext.set(context)
+        context.registerActivityLifecycleCallbacks(this)
     }
 
     override fun onActivityPostResumed(activity: Activity) {

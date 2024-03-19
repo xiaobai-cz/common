@@ -3,6 +3,7 @@ package io.github.xiaobaicz.common.content
 import android.app.Activity
 import android.app.Application
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultCallback
@@ -12,9 +13,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import com.google.auto.service.AutoService
-import io.github.xiaobaicz.common.app.Application.ActivityLifecycleCallbacksDefault
+import io.github.xiaobaicz.common.app.ActivityLifecycleCallbacksDefault
 import io.github.xiaobaicz.common.provider.ContextProvider
-import io.github.xiaobaicz.common.spi.ApplicationLifecycleSpi
+import io.github.xiaobaicz.initializer.Initializer
 import java.util.UUID
 
 // 传输数据缓存
@@ -210,11 +211,12 @@ class ActivityResult<T>(
 /**
  * 传输数据缓存管理器
  */
-@AutoService(ApplicationLifecycleSpi::class)
-class DataCacheHandler : ApplicationLifecycleSpi, ActivityLifecycleCallbacksDefault {
+@AutoService(Initializer::class)
+class DataCacheHandler : Initializer, ActivityLifecycleCallbacksDefault {
 
-    override fun onCreate(application: Application) {
-        application.registerActivityLifecycleCallbacks(this)
+    override fun onInit(context: Context) {
+        if (context !is Application) throw RuntimeException()
+        context.registerActivityLifecycleCallbacks(this)
     }
 
     override fun onActivityPostDestroyed(activity: Activity) {

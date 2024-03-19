@@ -41,6 +41,8 @@ dependencies {
     kapt(libs.auto.service)
     testImplementation(libs.bundles.test)
     androidTestImplementation(libs.bundles.test.android)
+
+    api(libs.initializer)
 }
 
 publishing {
