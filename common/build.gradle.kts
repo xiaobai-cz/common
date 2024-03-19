@@ -50,7 +50,7 @@ publishing {
         register<MavenPublication>("release") {
             groupId = "io.github.xiaobaicz"
             artifactId = "common"
-            version = "0.0.5"
+            version = "0.0.6"
 
             afterEvaluate {
                 from(components["release"])

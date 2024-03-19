@@ -3,20 +3,14 @@
 ## 依赖
 ~~~ kts
 // build.gradle.kts
-implementation("io.github.xiaobaicz:common:0.0.5")
+implementation("io.github.xiaobaicz:common:0.0.6")
 ~~~
 ~~~ gradle
 // build.gradle
-implementation 'io.github.xiaobaicz:common:0.0.5'
+implementation 'io.github.xiaobaicz:common:0.0.6'
 ~~~
 
 ## 功能
-
-### 基类
-
-1. Application (已集成 LanguageUtils，ApplicationLifecycleSpi)
-2. FragmentActivity (已集成 LanguageUtils)
-3. AppCompatActivity (已集成 LanguageUtils)
 
 ### 语言
 
@@ -43,21 +37,16 @@ LanguageUtils.setLocale(${Activity}, Locale.CHINA)
 LanguageUtils.locale
 ~~~
 
-### Application初始化监听
+### 初始化器
 
-1. ApplicationLifecycleSpi (已集成于Application/FragmentActivity/AppCompatActivity)
+1. Initializer
 
 ~~~ kotlin
-// Application
-override fun attachBaseContext(base: Context?) {
-    super.attachBaseContext(base)
-    ApplicationLifecycle.attachBaseContext(base)
-}
-
-// Application
-override fun onCreate() {
-    super.onCreate()
-    ApplicationLifecycle.onCreate(this)
+@AutoService(Initializer::class)
+class ContextProvider : Initializer {
+    override fun onInit(context: Context) {
+        // context is application
+    }
 }
 ~~~
 
@@ -116,3 +105,7 @@ adapter.data = listOf(x, x, x)
 - finishAndResult               // Activity关闭并返回值
 - registerForActivityResult     // 注册返回值接收
 - launch                        // 跳转Activity，并等待返回值
+
+### Log
+- log 系列方法
+- 扩展Log输出 Spi 入口 Log接口
