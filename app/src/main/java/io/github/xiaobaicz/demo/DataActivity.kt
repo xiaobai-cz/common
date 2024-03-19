@@ -2,9 +2,10 @@ package io.github.xiaobaicz.demo
 
 import android.os.Bundle
 import androidx.activity.addCallback
-import io.github.xiaobaicz.common.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import io.github.xiaobaicz.common.content.finishAndResult
 import io.github.xiaobaicz.common.content.parseData
+import io.github.xiaobaicz.common.log.log
 
 class DataActivity : AppCompatActivity() {
 
@@ -12,7 +13,7 @@ class DataActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         // 接受传输数据
-        println(intent.parseData<String>())
+        log(intent.parseData<String>())
 
         onBackPressedDispatcher.addCallback {
             // 返回数据

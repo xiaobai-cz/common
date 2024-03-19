@@ -1,12 +1,13 @@
 package io.github.xiaobaicz.demo
 
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import io.github.xiaobaicz.common.app.AppCompatActivity
 import io.github.xiaobaicz.common.content.launch
 import io.github.xiaobaicz.common.content.registerForActivityResult
 import io.github.xiaobaicz.common.content.startActivity
+import io.github.xiaobaicz.common.log.log
 import io.github.xiaobaicz.common.provider.ContextProvider
 import io.github.xiaobaicz.common.provider.await
 import io.github.xiaobaicz.common.recyclerview.CombineAdapter
@@ -31,9 +32,9 @@ class MainActivity : AppCompatActivity() {
     private val launcher = registerForActivityResult<String> {
         // 接收返回数据
         it.doOnSuccess { d ->
-            println(d)
+            log(d)
         }.doOnFail { code, d ->
-            println("code: $code, data: $d")
+            log("code: $code, data: $d")
         }
     }
 
@@ -42,8 +43,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(bind.root)
 
         lifecycleScope.launch {
-            println(ContextProvider.applicationContext.await())
-            println(ContextProvider.visibleActivity.await())
+            log(ContextProvider.applicationContext.await())
+            log(ContextProvider.visibleActivity.await())
             adapter.data = newsData()
         }
 
@@ -71,10 +72,10 @@ class MainActivity : AppCompatActivity() {
             }
         }.doOnBindingCreate<ItemNewsMsgBinding> {
             // 创建ItemNewsMsgBinding时回调
-            println(it)
+            log(it)
         }.doOnBindingCreate<ItemNewsImgBinding> {
             // 创建ItemNewsImgBinding时回调
-            println(it)
+            log(it)
         }
     }
 
