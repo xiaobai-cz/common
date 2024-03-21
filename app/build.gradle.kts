@@ -41,5 +41,7 @@ dependencies {
     androidTestImplementation(libs.bundles.test.android)
 
     implementation(project(path = ":common"))
-//    implementation(libs.common)
+    implementation(libs.log)
+    debugImplementation(libs.log.android)
+    implementation("io.github.xiaobaicz:recyclerview-extend:2.0.0")
 }

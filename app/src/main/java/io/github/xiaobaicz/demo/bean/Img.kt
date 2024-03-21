@@ -1,7 +1,7 @@
 package io.github.xiaobaicz.demo.bean
 
-import io.github.xiaobaicz.common.recyclerview.ViewType
 import io.github.xiaobaicz.demo.constant.VT_IMG
+import io.github.xiaobaicz.widget.recyclerview.ViewType
 
 class Img(
     val title: String,

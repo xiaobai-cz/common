@@ -7,12 +7,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import io.github.xiaobaicz.common.content.launch
 import io.github.xiaobaicz.common.content.registerForActivityResult
 import io.github.xiaobaicz.common.content.startActivity
-import io.github.xiaobaicz.common.log.log
 import io.github.xiaobaicz.common.provider.ContextProvider
 import io.github.xiaobaicz.common.provider.await
-import io.github.xiaobaicz.common.recyclerview.CombineAdapter
-import io.github.xiaobaicz.common.recyclerview.bind
-import io.github.xiaobaicz.common.recyclerview.combineAdapter
 import io.github.xiaobaicz.demo.bean.Img
 import io.github.xiaobaicz.demo.bean.Msg
 import io.github.xiaobaicz.demo.constant.VT_IMG
@@ -21,6 +17,10 @@ import io.github.xiaobaicz.demo.databinding.ActivityMainBinding
 import io.github.xiaobaicz.demo.databinding.ItemNewsImgBinding
 import io.github.xiaobaicz.demo.databinding.ItemNewsMsgBinding
 import io.github.xiaobaicz.demo.test.newsData
+import io.github.xiaobaicz.log.log
+import io.github.xiaobaicz.widget.recyclerview.CombineAdapter
+import io.github.xiaobaicz.widget.recyclerview.bind
+import io.github.xiaobaicz.widget.recyclerview.combineAdapter
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
