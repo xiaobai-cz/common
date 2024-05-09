@@ -1,16 +1,17 @@
 [versions]
-agp = "8.3.1"
+agp = "8.4.0"
 common = "1.0.0"
 initializer = "0.0.2"
-log = "0.0.1"
-org-jetbrains-kotlin-android = "1.9.22"
-core-ktx = "1.12.0"
+log = "0.0.2"
+org-jetbrains-kotlin-android = "1.9.24"
+core-ktx = "1.13.1"
 junit = "4.13.2"
 androidx-test-ext-junit = "1.1.5"
 espresso-core = "3.5.1"
 appcompat = "1.6.1"
-material = "1.11.0"
+material = "1.12.0"
 auto-service = "1.1.1"
+recyclerview-extend = "2.0.0"
 
 [libraries]
 common = { module = "vip.oicp.xiaobaicz:common", version.ref = "common" }
@@ -25,6 +26,7 @@ log-android = { module = "io.github.xiaobaicz:log-android", version.ref = "log" 
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 auto-service = { module = "com.google.auto.service:auto-service", version.ref = "auto-service" }
 auto-service-annotations = { module = "com.google.auto.service:auto-service-annotations", version.ref = "auto-service" }
+recyclerview-extend = { module = "io.github.xiaobaicz:recyclerview-extend", version.ref = "recyclerview-extend" }
 
 [bundles]
 common = ["core-ktx", "appcompat", "material"]
